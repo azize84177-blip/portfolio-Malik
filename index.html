@@ -1,0 +1,61 @@
+<!DOCTYPE html><html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Donghua Stream Auto Update</title>
+  <style>
+    body { margin: 0; font-family: Arial; background:#0f172a; color:white; }
+    header { background:#1e293b; padding:15px; text-align:center; font-size:22px; }
+    .container { padding:20px; display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:15px; }
+    .card { background:#1e293b; border-radius:10px; overflow:hidden; cursor:pointer; }
+    .card img { width:100%; height:250px; object-fit:cover; }
+    .card h3 { padding:10px; font-size:14px; }
+    .player { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:black; justify-content:center; align-items:center; flex-direction:column; }
+    iframe { width:90%; height:60%; }
+    .close { margin-top:10px; padding:10px; background:red; border:none; color:white; }
+  </style>
+</head>
+<body><header>Donghua Auto Update</header><div class="container" id="list"></div><div class="player" id="player">
+  <iframe id="video"></iframe>
+  <button class="close" onclick="closeVideo()">Tutup</button>
+</div><script>
+// Ambil video terbaru dari YouTube channel donghua (contoh: Bilibili Anime)
+async function loadDonghua() {
+  const API = "https://api.rss2json.com/v1/api.json?rss_url=https://www.youtube.com/feeds/videos.xml?channel_id=UCQFyMGc6h30NMCd6HCk0ZPA";
+
+  const res = await fetch(API);
+  const data = await res.json();
+
+  const container = document.getElementById("list");
+  container.innerHTML = "";
+
+  data.items.slice(0, 12).forEach(item => {
+    const videoId = item.link.split("v=")[1];
+
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = `
+      <img src="https://img.youtube.com/vi/${videoId}/0.jpg">
+      <h3>${item.title}</h3>
+    `;
+
+    card.onclick = () => playVideo(`https://www.youtube.com/embed/${videoId}`);
+
+    container.appendChild(card);
+  });
+}
+
+function playVideo(src) {
+  document.getElementById('player').style.display = 'flex';
+  document.getElementById('video').src = src;
+}
+
+function closeVideo() {
+  document.getElementById('player').style.display = 'none';
+  document.getElementById('video').src = '';
+}
+
+// auto update tiap buka
+loadDonghua();
+</script></body>
+</html>
